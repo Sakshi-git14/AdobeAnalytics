@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E-Shop | All-in-One</title>
+  <style>
+    body { font-family: Arial, sans-serif; background:#f9f9f9; margin:0; padding:0; text-align:center; }
+    nav { background:#333; padding:10px; }
+    nav a { color:white; margin:0 15px; text-decoration:none; cursor:pointer; }
+    nav a:hover { text-decoration:underline; }
+    header { background:#4CAF50; color:white; padding:20px; }
+    section { margin:30px auto; padding:20px; max-width:800px; background:#fff; border:1px solid #ddd; border-radius:5px; }
+    .search-bar { margin:20px; }
+    .search-bar input { padding:10px; width:60%; font-size:16px; }
+    .filters { margin:20px; }
+    .filters button { margin:5px; padding:10px 15px; background:#4CAF50; color:white; border:none; border-radius:5px; cursor:pointer; }
+    .filters button:hover { background:#45a049; }
+    .products { display:flex; flex-wrap:wrap; justify-content:center; gap:20px; margin:20px; }
+    .product { background:white; padding:15px; border:1px solid #ddd; border-radius:5px; width:200px; }
+    ul { list-style:none; padding:0; }
+    li { margin:5px 0; }
+    input, textarea, select { width:100%; padding:8px; margin-top:5px; margin-bottom:15px; border:1px solid #ccc; border-radius:4px; }
+    button { padding:10px 20px; background:#4CAF50; color:white; border:none; border-radius:5px; cursor:pointer; }
+    button:hover { background:#45a049; }
+    #thankyouSection h2 { color:green; text-align:center; }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav>
+    <a onclick="showSection('productSection')">Products</a>
+    <a onclick="showSection('cartSection')">Cart 🛒</a>
+    <a onclick="showSection('checkoutSection')">Checkout</a>
+    <a onclick="showSection('thankyouSection')">orders</a>
+  </nav>
+
+  <!-- Header -->
+  <header>
+    <h1>E-Shop</h1>
+    <p>Groceries delivered fast</p>
+  </header>
+
+  <!-- Product Section -->
+  <section id="productSection">
+    <h2>Products</h2>
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="Search products...">
+    </div>
+    <div class="filters">
+      <button onclick="filterCategory('all')">All</button>
+      <button onclick="filterCategory('fruits')">Fruits</button>
+      <button onclick="filterCategory('dairy')">Dairy</button>
+      <button onclick="filterCategory('bakery')">Bakery</button>
+      <button onclick="filterCategory('snacks')">Snacks</button>
+      <button onclick="filterCategory('beverages')">Beverages</button>
+    </div>
+    <main class="products" id="productList">
+      <div class="product" data-category="fruits"><h3>Apples</h3><p>₹120/kg</p><button onclick="addToCart('Apples',120)">Add to Cart</button></div>
+      <div class="product" data-category="fruits"><h3>Bananas</h3><p>₹50</p><button onclick="addToCart('Bananas',50)">Add to Cart</button></div>
+      <div class="product" data-category="dairy"><h3>Milk (1L)</h3><p>₹60</p><button onclick="addToCart('Milk',60)">Add to Cart</button></div>
+      <div class="product" data-category="bakery"><h3>Bread</h3><p>₹40</p><button onclick="addToCart('Bread',40)">Add to Cart</button></div>
+      <div class="product" data-category="snacks"><h3>Chips</h3><p>₹80</p><button onclick="addToCart('Chips',80)">Add to Cart</button></div>
+      <div class="product" data-category="beverages"><h3>Orange Juice</h3><p>₹120</p><button onclick="addToCart('Orange Juice',120)">Add to Cart</button></div>
+    </main>
+  </section>
+
+  <!-- Cart Section -->
+  <section id="cartSection" style="display:none;">
+    <h2>Your Cart</h2>
+    <ul id="cartItems"></ul>
+    <p id="total"></p>
+    <button onclick="showSection('checkoutSection')">Proceed to Checkout</button>
+  </section>
+
+  <!-- Checkout Section -->
+  <section id="checkoutSection" style="display:none;">
+    <h2>Checkout</h2>
+    <form id="checkoutForm">
+      <label>Name:</label>
+      <input type="text" required>
+      <label>Address:</label>
+      <textarea required></textarea>
+      <label>Payment Method:</label>
+      <select>
+        <option>Cash on Delivery</option>
+        <option>UPI</option>
+        <option>Credit/Debit Card</option>
+      </select>
+      <button type="submit">Place Order</button>
+    </form>
+  </section>
+
+  <!-- Thank You Section -->
+  <section id="thankyouSection" style="display:none;">
+    <h2>✅ Order Placed</h2>
+    <p>Thank you for shopping with E-Shop! Your groceries will be delivered soon.</p>
+    <button onclick="showSection('productSection')">Back to Products</button>
+  </section>
+
+  <script>
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+    function addToCart(name, price) {
+      cart.push({name, price});
+      localStorage.setItem("cart", JSON.stringify(cart));
+      alert(name + " added to cart!");
+      displayCart();
+    }
+
+    function displayCart() {
+      const cartItems = document.getElementById("cartItems");
+      const total = document.getElementById("total");
+      if (!cartItems) return;
+      cartItems.innerHTML = "";
+      let sum = 0;
+      cart.forEach(item => {
+        const li = document.createElement("li");
+        li.textContent = `${item.name} - ₹${item.price}`;
+        cartItems.appendChild(li);
+        sum += item.price;
+      });
+      total.textContent = "Total: ₹" + sum;
+    }
+
+    function showSection(id) {
+      document.querySelectorAll("section").forEach(sec => sec.style.display="none");
+      document.getElementById(id).style.display="block";
+      if(id==="cartSection") displayCart();
+    }
+
+    // Search
+    const searchInput = document.getElementById("searchInput");
+    if(searchInput){
+      searchInput.addEventListener("keyup", () => {
+        const query = searchInput.value.toLowerCase();
+        document.querySelectorAll(".product").forEach(product => {
+          const name = product.querySelector("h3").textContent.toLowerCase();
+          product.style.display = name.includes(query) ? "block" : "none";
+        });
+      });
+    }
+
+    // Filters
+    function filterCategory(category){
+      document.querySelectorAll(".product").forEach(product => {
+        if(category==="all" || product.dataset.category===category){
+          product.style.display="block";
+        } else {
+          product.style.display="none";
+        }
+      });
+    }
+
+    // Checkout confirmation
+    document.getElementById("checkoutForm").addEventListener("submit", function(event){
+      event.preventDefault();
+      const confirmOrder = confirm("Are you sure you want to place this order?");
+      if(confirmOrder){
+        cart = [];
+        localStorage.setItem("cart", JSON.stringify(cart));
+        showSection("thankyouSection");
+      }
+    });
+
+    // Initialize
+    displayCart();
+  </script>
+</body>
+</html>
